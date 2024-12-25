@@ -133,7 +133,7 @@ func (l *Lexer) NextToken() token.Token {
 		if isDigit(l.ch) {
 			tok.Literal = l.readNumber()
 			tok.Type = token.INT
-			// we return here because readIdentifier has already advanced the token
+			// we return here because readNumber has already advanced the token
 			return tok
 		}
 
