@@ -209,8 +209,6 @@ func (p *Parser) parseBooleanExpression() ast.Expression {
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	defer untrace(trace("parseInfixExpression"))
-
 	expression := ast.InfixExpression{
 		Token:    p.curToken,
 		Left:     left,
@@ -225,8 +223,6 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
-	defer untrace(trace("parsePrefixExpression"))
-
 	expression := ast.PrefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
