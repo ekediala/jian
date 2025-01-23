@@ -13,7 +13,9 @@ const (
 	RETURN_VALUE ObjectType = "RETURN_VALUE"
 	ERROR        ObjectType = "ERROR"
 	FUNCTION     ObjectType = "FUNCTION"
-	STRING ObjectType = "STRING"
+	STRING       ObjectType = "STRING"
+	BUILTIN      ObjectType = "BUILTIN"
+	ARRAY        ObjectType = "ARRAY"
 )
 
 type Object interface {
