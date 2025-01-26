@@ -1,5 +1,10 @@
 package object
 
+type HashKey struct {
+	Type  ObjectType
+	Value uint64
+}
+
 type ObjectType string
 
 func (o ObjectType) String() string {
@@ -16,6 +21,7 @@ const (
 	STRING       ObjectType = "STRING"
 	BUILTIN      ObjectType = "BUILTIN"
 	ARRAY        ObjectType = "ARRAY"
+	HASH         ObjectType = "HASH"
 )
 
 type Object interface {

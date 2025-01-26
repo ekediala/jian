@@ -1,6 +1,10 @@
 package evaluator
 
-import "github.com/ekediala/jian/object"
+import (
+	"fmt"
+
+	"github.com/ekediala/jian/object"
+)
 
 var builtins = map[string]*object.Builtin{
 	"len":   {Fn: length},
@@ -8,6 +12,14 @@ var builtins = map[string]*object.Builtin{
 	"last":  {Fn: last},
 	"rest":  {Fn: rest},
 	"push":  {Fn: push},
+	"puts":  {Fn: puts},
+}
+
+func puts(args ...object.Object) object.Object {
+	for _, arg := range args {
+		fmt.Println(arg.Inspect())
+	}
+	return NULL
 }
 
 func push(args ...object.Object) object.Object {
@@ -22,7 +34,7 @@ func push(args ...object.Object) object.Object {
 		return &object.Array{Elements: elements}
 	}
 
-	return object.NewError("first argument to `push` must be ARRAY, got %s", args[0].Type())
+	return object.NewError("argument to `push` must be ARRAY, got %s", args[0].Type())
 }
 
 func rest(args ...object.Object) object.Object {

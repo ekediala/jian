@@ -72,6 +72,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefixFn(token.IF, p.parseIfExpression)
 	p.registerPrefixFn(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefixFn(token.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefixFn(token.LBRACE, p.parseHashLiteral)
 
 	// infix parsing functions
 	p.registerInfixFn(token.PLUS, p.parseInfixExpression)
@@ -85,6 +86,50 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfixFn(token.LPAREN, p.parseCallExpression)
 	p.registerInfixFn(token.LBRACKET, p.parseIndexExpression)
 	return &p
+}
+
+func (p *Parser) parseHashLiteral() ast.Expression {
+	hash := ast.HashLiteral{
+		Token: p.curToken,
+		Pairs: map[ast.Expression]ast.Expression{},
+	}
+
+	p.nextToken() // advance from { token
+
+	if p.curTokenIs(token.RBRACE) {
+		return &hash
+	}
+
+	key := p.parseExpression(LOWEST)
+	if !p.expectPeek(token.COLON) {
+		return nil
+	}
+
+	p.nextToken() // advance past colon
+
+	value := p.parseExpression(LOWEST)
+	hash.Pairs[key] = value
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken() // advance to comma
+		p.nextToken() // advance past comma
+
+		key = p.parseExpression(LOWEST)
+		if !p.expectPeek(token.COLON) {
+			return nil
+		}
+
+		p.nextToken() // advance past colon
+
+		value = p.parseExpression(LOWEST)
+		hash.Pairs[key] = value
+	}
+
+	if !p.expectPeek(token.RBRACE) {
+		return nil
+	}
+
+	return &hash
 }
 
 func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {

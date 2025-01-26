@@ -96,6 +96,8 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case toByte(token.SEMICOLON):
 		tok = newToken(token.SEMICOLON, l.ch)
+	case toByte(token.COLON):
+		tok = newToken(token.COLON, l.ch)
 	case toByte(token.LPAREN):
 		tok = newToken(token.LPAREN, l.ch)
 	case toByte(token.RPAREN):

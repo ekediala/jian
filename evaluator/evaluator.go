@@ -108,13 +108,40 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			if isError(left) {
 				return left
 			}
-			
+
 			index := Eval(val.Index, env)
 			if isError(index) {
 				return index
 			}
-			
+
 			return evalIndexOperation(left, index)
+		}
+
+	case *ast.HashLiteral:
+		{
+			h := object.Hash{
+				Pairs: map[object.HashKey]object.HashPair{},
+			}
+
+			for k, v := range val.Pairs {
+				key := Eval(k, env)
+				if isError(key) {
+					return key
+				}
+
+				hashable, ok := key.(object.Hashable)
+				if !ok {
+					return object.NewError("unusable as hash key: %s", key.Type())
+				}
+
+				value := Eval(v, env)
+				if isError(value) {
+					return value
+				}
+				h.Pairs[hashable.HashKey()] = object.HashPair{Key: key, Value: value}
+			}
+
+			return &h
 		}
 	}
 
@@ -129,6 +156,18 @@ func evalIndexOperation(left object.Object, index object.Object) object.Object {
 				return evalArrayIndexOperation(obj, i)
 			}
 			return object.NewError("expected index to be *object.Integer, got %T", index)
+		}
+
+	case *object.Hash:
+		{
+			if key, ok := index.(object.Hashable); ok {
+				if val, ok := obj.Pairs[key.HashKey()]; ok {
+					return val.Value
+				}
+				return NULL
+			}
+
+			return object.NewError("unusable as hash key: %s", index.Type())
 		}
 
 	default:
@@ -163,8 +202,10 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 
 	for _, stmt := range block.Statements {
 		r = Eval(stmt, env)
-		if r.Type() == object.RETURN_VALUE || r.Type() == object.ERROR {
-			return r
+		if r != nil {
+			if r.Type() == object.RETURN_VALUE || r.Type() == object.ERROR {
+				return r
+			}
 		}
 	}
 
